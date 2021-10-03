@@ -1,0 +1,191 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m09__test_prepare.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+9  Připravujeme test
+"""
+
+
+
+#Výpis 9.1: Definice třídy _Step v modulu scenarios
+############################################################################
+from typing import Tuple
+
+_single_line = 30*'-'
+_double_line = 60*'='
+
+class _Step:
+    """Krok scénáře definuje zadávaný příkaz a stav hry po jeho zpracování.
+    Pomocí sekvence kroků tvořících scénář lze otestovat funkcionalitu hry.
+    """
+    # Atribut třídy pamatující si index naposledy vytvářeného kroku
+    last_index:int = -1
+
+    def __init__(self,
+            command: str,   # Zadaný příkaz
+            message: str,   # Zpráva hry vypsaná v reakci na příkaz
+            # Stav hry po provedení příkazu
+            place:     str,         # Aktuální prostor
+            neighbors: Tuple[str],  # Sousedé aktuálního prostoru
+            items:     Tuple[str],  # H-objekty v aktuálním prostoru
+            bag:       Tuple[str],  # H-objekty v batohu
+        ):
+        """Vytvoří krok scénáře, přičemž použije index o jedničku větší,
+        než byl index předchozího vytvářeného kroku.
+        """
+        self.command    = command
+        self.message    = message
+        self.place      = place
+        self.neighbors  = neighbors
+        self.items      = items
+        self.bag        = bag
+        _Step.last_index= _Step.last_index + 1
+        self.index      = _Step.last_index
+
+    def __str__(self):
+        """Vrátí uživatelský podpis instance."""
+        return (f'{self.index}.\n'
+                f'{self.command}\n{_single_line}\n'
+                f'{self.message}\n{_single_line}\n'
+                f'Aktuální prostor: {self.place}\n'
+                f'Sousedé prostoru: {self.neighbors}\n'
+                f'Předměty v prostoru: {self.items}\n'
+                f'Předměty v batohu:   {self.bag}\n'
+                f'{_double_line}')
+
+
+
+#Výpis 9.2: Definice počátku n tice reprezentující „šťastný scénář“ vybrané hry
+############################################################################
+# Základní úspěšný scénář demonstrující průběh hry,
+# v něm hráč nezadává žádné chybné příkazy
+# a směřuje co nejkratší cestou k zadanému cíli.
+_HAPPY_SCENARIO = (
+    _Step('',
+          'Vítejte!\n'
+          'Toto je příběh o Červené Karkulce, babičce a vlkovi.\n'
+          'Svými příkazy řídíte Karkulku, aby donesla věci babičce.\n'
+          'Nebudete-li si vědět rady, zadejte znak ?.',
+          'Domeček',
+          ('Les',),
+          ('Bábovka', 'Víno', 'Stůl', 'Panenka', ),
+          (),
+          ),
+    _Step('Vezmi víno',
+          'Karkulka dala do košíku objekt: Víno',
+          'Domeček',
+          ('Les', ),
+          ('Bábovka', 'Stůl', 'Panenka', ),
+          ('Víno', ),
+          ),
+    _Step('Vezmi bábovka',
+          'Karkulka dala do košíku objekt: Bábovka',
+          'Domeček',
+          ('Les', ),
+          ('Stůl', 'Panenka', ),
+          ('Bábovka', 'Víno', ),
+          ),
+    _Step('Jdi LES',
+          'Karkulka se přesunula do prostoru:\n'
+          'Les s jahodami, malinami a pramenem vody',
+          'Les',
+          ('Domeček', 'Temný_les', ),
+          ('Maliny', 'Jahody', 'Studánka', ),
+          ('Bábovka', 'Víno', ),
+          ),
+
+
+
+#Výpis 9.3: Definice metody simulate_simple()
+############################################################################
+def simulate_simple():
+    """Vytiskne jednoduchou simulaci běhu hry podle šťastného scénáře,
+    přičemž v každém kroku zobrazí pouze příkaz a odpověď hry.
+    """
+    for step in _HAPPY_SCENARIO:
+        print(f'{step.index}. {step.command}\n{_single_line}\n'
+              f'{step.message}\n{_double_line}')
+
+
+
+#Výpis 9.4: Import modulu scenarios v balíčku game_v1a a spuštění metody simulate_simple()
+############################################################################
+=============================== RESTART: Shell ==============================
+>>> from game.game_v1a.scenarios import simulate_simple
+##### game - Společný rodičovský balíček balíčků jednotlivých verzí her
+##### game.game_v1a - Balíček s verzí hry na konci 7., resp. 9. kapitoly
+      po prvotní analýze (7. kapitola) a
+      po návrhu šťastného scénáře a simulačních metod (9. kapitola)
+===== Modul game.game_v1a.scenarios ===== START
+===== Modul game.game_v1a.scenarios ===== STOP
+>>> simulate_simple()
+0.
+------------------------------
+Vítejte!
+Toto je příběh o Červené Karkulce, babičce a vlkovi.
+Svými příkazy řídíte Karkulku, aby donesla věci babičce.
+Nebudete-li si vědět rady, zadejte znak ?.
+============================================================
+1. Vezmi víno
+------------------------------
+Karkulka dala do košíku objekt: Víno
+============================================================
+2. Vezmi bábovka
+------------------------------
+Karkulka dala do košíku objekt: Bábovka
+============================================================
+3. Jdi LES
+------------------------------
+Karkulka se přesunula do prostoru:
+Les s jahodami, malinami a pramenem vody
+============================================================
+...
+
+
+
+#Výpis 9.5: Definice metody simulate_with_state()
+############################################################################
+def simulate_with_state():
+    """Vytiskne simulaci běhu hry podle šťastného scénáře,
+    přičemž v každém kroku vytiskne za příkazem a odpovědí
+    informace o požadovaném stavu hry po provedeném kroku.
+    """
+    for step in _HAPPY_SCENARIO:
+        print(step)
+    print("KONEC HRY")
+
+
+
+#Výpis 9.6: Začátek simulace vypsané metodou simulate_with_state()
+############################################################################
+>>> from game.game_v1a.scenarios import simulate_with_state as sws
+>>> sws()
+0.
+
+------------------------------
+Vítejte!
+Toto je příběh o Červené Karkulce, babičce a vlkovi.
+Svými příkazy řídíte Karkulku, aby donesla věci babičce.
+Nebudete-li si vědět rady, zadejte znak ?.
+------------------------------
+Aktuální prostor: Domeček
+Sousedé prostoru: ('Les',)
+Předměty v prostoru: ('Bábovka', 'Víno', 'Stůl', 'Panenka')
+Předměty v batohu:   ()
+============================================================
+1.
+Vezmi víno
+------------------------------
+Karkulka dala do košíku objekt: Víno
+------------------------------
+Aktuální prostor: Domeček
+Sousedé prostoru: ('Les',)
+Předměty v prostoru: ('Bábovka', 'Stůl', 'Panenka')
+Předměty v batohu:   ('Víno',)
+============================================================
+...
+
+
+
+############################################################################
+##### KONEC #####

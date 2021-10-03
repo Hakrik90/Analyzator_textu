@@ -1,0 +1,99 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m18_bag_help.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+18  Batoh a nápověda.
+"""
+
+
+
+#Výpis 18.1: Upravená definice třídy Item v modulu world v balíčku game_v1h
+############################################################################
+class Item(ANamed):
+    """Instance reprezentují h-objekty v prostorech hry a v batohu."""
+
+    HEAVY: int = 999    # Váha nepřenositelného h-objektu
+
+    def __init__(self, name: str):
+        """Vytvoří h-objekt se zadaným názvem. Podle prvního znaku
+        pozná přenositelnost objektu a nastaví jeho váhu.
+        Zbylé znaky argumentu si zapamatuje jako jeho název.
+        """
+        prefix    = name[0]   # Předpona indikující další vlastnosti
+        real_name = name[1:]  # Název h-objektu používaný v příkazech
+        super().__init__(real_name)
+        self.weight = 1 if prefix == '_' else Item.HEAVY
+
+
+
+#Výpis 18.2: Definice metody try_add() ve třídě Bag v modulu world v balíčku game_v1h
+############################################################################
+def try_add(self, item: Item) -> bool:
+    """Pokusí se vložit do batohu zadaný objekt a vrátí informaci
+    o tom, zda se tam ještě vešel.
+    """
+    if len(self.items) + item.weight  > Bag.CAPACITY:
+        return False
+    self.add_item(item)
+    return True
+
+
+
+#Výpis 18.3: Definice metody execute() ve třídě _Tak v modulu actions v balíčku game_v1h
+############################################################################
+def execute(self, arguments: list[str]) -> str:
+    """Ověří existenci zadaného h-objektu v aktuálním prostoru
+    a je-li tam, přesune jej do košíku.
+    """
+    if len(arguments) < 2:
+        return ('Nevím, co mám zvednout.\n'
+                'Je třeba zadat název zvedaného předmětu.')
+    item_name = arguments[1]
+    item      = world.current_place.remove_item(item_name)
+    if not item:
+        return 'Zadaný předmět v prostoru není: ' + item_name
+    if item.weight == world.Item.HEAVY:
+        world.current_place.add_item(item)
+        return 'Zadaný předmět nelze zvednout: ' + item.name
+    if world.BAG.try_add(item):
+        return 'Karkulka dala do košíku objekt: ' + item.name
+    else:
+        world.current_place.add_item(item)
+        return 'Zadaný předmět se již do košíku nevejde: ' + item.name
+
+
+
+#Výpis 18.4: Definice třídy _Help v modulu actions v balíčku game_v1h
+############################################################################
+class _Help(_AAction):
+    """Zobrazí definované akce a jejich popisy.
+    """
+    def __init__(self):
+        super().__init__('?',
+                         'Zobrazí seznam dostupných akcí spolu'
+                         's jejich stručnými popisy.')
+
+    def execute(self, arguments: list[str]) -> str:
+        """Zobrazí definované akce a jejich popisy."""
+        result = 'Hra umožňuje zadat následující příkazy:\n\n'
+        for a in _NAME_2_ACTION.values():
+            result += f'{a.name}\n{a.description}\n\n'
+        return result
+
+
+
+#Výpis 18.5: Upravená definice metody execute_command()v modulu game v balíčku game_v1h
+############################################################################
+print_state = False
+
+def execute_command(command: str) -> str:
+    """Zpracuje zadaný příkaz a vrátí string se zprávou pro uživatele."""
+    message = actions.execute_command(command) \
+            + '\n' + 30*'-' \
+            + (('\n' + current_state()) if print_state else '')
+    return message
+
+
+
+############################################################################
+##### KONEC #####

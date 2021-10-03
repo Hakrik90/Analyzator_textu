@@ -1,0 +1,128 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m14__create_world.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+14  Vytváříme svět hry
+"""
+
+
+
+#Výpis 14.1: Definice třídy ANamed v modulu world v balíčku game_v1d
+############################################################################
+from abc import ABCMeta
+
+class ANamed(metaclass=ABCMeta):
+    """Společný rodič všech tříd s pojmenovanými instancemi,
+    v případě našich textových her je to rodič h-objektů, prostorů a akcí.
+    """
+
+    def __init__(self, name):
+        """Zapamatuje si jméno dané instance."""
+        self.name = name
+
+
+
+#Výpis 14.2: Upravená definice třídy Item v modulu world v balíčku game_v1d
+############################################################################
+class Item(ANamed):
+    """Instance reprezentují h-objekty v prostorech hry a v batohu."""
+
+    def __init__(self, name: str):
+        """Vytvoří h-objekt se zadaným názvem."""
+        super().__init__(name)
+
+
+
+#Výpis 14.3: Upravená definice třídy Place v modulu world v balíčku game_v1d
+############################################################################
+class Place(ANamed):
+    """Instance reprezentují prostory hry."""
+
+    def __init__(self, name: str, description: str,
+                 initial_neighbors_names: Tuple[str],
+                 initial_items_names:     Tuple[str]):
+        """Vytvoří prostor se zadaným názvem a stručným popisem napojený
+        zpočátku na zadané sousedy a obsahující zadané h-objekty."""
+        super().__init__(name)
+        self.description             = description
+        self.initial_items_names     = initial_items_names
+        self.initial_neighbors_names = initial_neighbors_names
+        self.item_names              = list(initial_items_names)
+        self.name_2_neighbor         = dict.fromkeys(initial_neighbors_names)
+
+
+
+#Výpis 14.4: Definice atributu _NAME_2_PLACE v modulu world v balíčku game_v1d
+############################################################################
+_NAME_2_PLACE = { p.name.lower(): p for p in (
+    Place('Domeček',
+          'Domeček, kde bydlí Karkulka',
+          ('Les',),
+          ('Bábovka', 'Víno', 'Stůl', 'Panenka', ),
+         ),
+    Place('Les',
+          'Les s jahodami, malinami a pramenem vody',
+          ('Domeček', 'Temný_les',),
+          ('Maliny', 'Jahody', 'Studánka', ),
+         ),
+    Place('Temný_les',
+          'Temný_les s jeskyní a číhajícím vlkem',
+          ('Les', 'Jeskyně', 'Chaloupka', ),
+          ('Vlk', ),
+          ),
+    Place('Chaloupka',
+          'Chaloupka, kde bydlí babička',
+          ('Temný_les', ),
+          ('Postel', 'Stůl', 'Babička', ),
+         ),
+    Place('Jeskyně',
+          'Jeskyně, kde v zimě přespává medvěd',
+          ('Temný_les', ),
+          (),
+         ),
+)}
+
+
+
+#Výpis 14.5: Konec zprávy o průběhu testu aplikace v balíčku game_v1d
+############################################################################
+=============================== RESTART: Shell ==============================
+>>> import game.game_v1c.scenarios
+##### game - Společný rodičovský balíček balíčků jednotlivých verzí her
+##### game.game_v1c - Balíček s verzí hry po definici startu hry na konci 12. kapitoly
+===== Modul game.game_v1c.scenarios ===== START
+===== Modul game.game_v1c.game ===== START
+===== Modul game.game_v1c.actions ===== START
+===== Modul game.game_v1c.world ===== START
+===== Modul game.game_v1c.world ===== STOP
+===== Modul game.game_v1c.actions ===== STOP
+===== Modul game.game_v1c.game ===== STOP
+===== Modul game.game_v1c.scenarios ===== STOP
+Spuštěna metoda game.game_v1c.game.game_v1c.scenarios.test_scenario
+0.
+------------------------------
+
+------------------------------
+Vítejte!
+Toto je příběh o Červené Karkulce, babičce a vlkovi.
+Svými příkazy řídíte Karkulku, aby donesla věci babičce.
+Nebudete-li si vědět rady, zadejte znak ?.
+============================================================
+
+1.
+------------------------------
+Vezmi víno
+------------------------------
+Tento příkaz neznám: vezmi
+============================================================
+
+V 1. kroku neodpovídá: odpověď hry
+   Očekáváno: Karkulka dala do košíku objekt: Víno
+   Obdrženo:  Tento příkaz neznám: vezmi
+Stisk klávesy Enter aplikaci ukončí
+>>>
+
+
+
+############################################################################
+##### KONEC #####

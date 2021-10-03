@@ -1,0 +1,170 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m16_application_start.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+16  Rozběhnutí aplikace
+"""
+
+
+
+#Výpis 16.1: Definice třídy _GoTo v modulu actions v balíčku game_v1f
+############################################################################
+class _GoTo(_AAction):
+    """Přesune Karkulku do zadaného sousedního prostoru.
+    """
+    def __init__(self):
+        super().__init__("jdi",
+                         "Přesune Karkulku do zadaného sousedního prostoru.")
+
+    def execute(self, arguments: List[str]) -> str:
+        """Ověří, že zadaný prostor patří mezi sousedy aktuálního
+        prostoru, Karkulku do něj přemístí a vrátí příslušnou zprávu.
+        Není-li cílový prostor sousedem, vrátí příslušné oznámení.
+        """
+        destination_name = arguments[1]
+        try:
+            destination = world.current_place \
+                               .name_2_neighbor[destination_name.lower()]
+        except KeyError:
+            return ('Do zadaného prostoru se odsud nedá přejít: '
+                    + destination_name)
+        world.current_place = destination
+        return ('Karkulka se přesunula do prostoru: ' +
+                destination.description)
+
+
+
+#Výpis 16.2: Konec zprávy o průběhu testu
+############################################################################
+
+
+
+#Výpis 16.3: Definice metody __str__() ve třídě _Step v modulu scenarios v balíčku game_v1f
+############################################################################
+    def __str__(self):
+        return f"""{self.index}.
+{self.command}\n{_single_line}
+{self.message}\n{_single_line}
+Aktuální prostor: {self.place}
+Sousedé prostoru: {self.neighbors}
+Předměty v prostoru: {self.items}
+Předměty v batohu:   {self.bag}
+{_double_line}
+"""
+
+
+
+#Výpis 16.4: Definice funkce simulate_with_state() v modulu scenarios v balíčku game_v1f
+############################################################################
+def simulate_with_state():
+    """Vytiskne simulaci běhu hry podle šťastného scénáře,
+    přičemž v každém kroku vytiskne za příkazem a odpovědí
+    informace o požadovaném stavu hry po provedeném kroku.
+    """
+    for step in HAPPY_SCENARIO:
+        print(step)
+    print("KONEC HRY")
+
+
+
+#Výpis 16.5: Definice funkce current_state() v modulu game v balíčku game_v1f
+############################################################################
+def current_state():
+    """Vrátí string s popisem aktuálního stavu, tj. s názvy
+    aktuálního prostoru, jeho sousedů a h-objektů a obsahu batohu.
+    """
+    current_place = world.current_place
+    neighbors     = list(current_place.name_2_neighbor.keys())
+    items         = current_place.item_names
+    bag           = world.BAG.item_names
+    result = f'Aktuální prostor: {world.current_place.name}\n' \
+             f'Sousedé prostoru: {neighbors}\n' \
+             f'Předměty v prostoru: {items}\n' \
+             f'Předměty v batohu:   {bag}\n'
+    return result
+
+
+
+#Výpis 16.6: Definice funkce _error() v modulu scenarios v balíčku game_v1f
+############################################################################
+def _error(step: _Step, reason: str, answer: str):
+    """Ohlásí zprávu o chybě a ukončí aplikaci."""
+    msg = f'V {step.index}. kroku neodpovídá: {reason}\n' \
+          f'Očekáváno:\n{step}' \
+          f'Obdrženo:\n{answer}\n{_single_line}\n' \
+          f'{game.current_state()}'
+    print( msg )
+    input('Stisk klávesy Enter aplikaci ukončí')
+    exit(1)
+
+
+
+#Výpis 16.7: Upravená definice části funkce test_scenario() v modulu scenarios v balíčku game_v1f
+############################################################################
+        if step.message != answer:
+            _error(step, 'odpověď hry', answer)
+        current_place = world.current_place
+        if  step.place != current_place.name:
+            _error(step, 'aktuální prostor', answer)
+        if compare_containers(step.neighbors,
+                              current_place.name_2_neighbor.keys()):
+            _error(step, 'aktuální sousedé', answer)
+        if compare_containers(step.items, current_place.item_names):
+            _error(step, 'objekty v prostoru', answer)
+        if compare_containers(step.bag, world.BAG.item_names):
+            _error(step, 'objekty v batohu', answer)
+
+
+
+#Výpis 16.8: Konec zprávy o průběhu testu
+############################################################################
+
+
+
+#Výpis 16.9: Upravená definice funkce current_state() v modulu game v balíčku game_v1f
+############################################################################
+def current_state():
+    """Vrátí string s popisem aktuálního stavu, tj. s názvem
+    aktuálního prostoru, jeho sousedů a h-objektů a obsahu batohu.
+    """
+    current_place = world.current_place
+    neighbors     = [n.name for n in current_place.name_2_neighbor.values()]
+    items         = [i.name for i in current_place.items]
+    bag           = [i.name for i in world.BAG.items]
+    result = f'Aktuální prostor: {world.current_place.name}\n' \
+             f'Sousedé prostoru: {neighbors}\n' \
+             f'Předměty v prostoru: {items}\n' \
+             f'Předměty v batohu:   {bag}\n'
+    return result
+
+
+
+#Výpis 16.10: Definice metody initialize() ve třídě Place v modulu world v balíčku game_v1f
+############################################################################
+    def initialize(self):
+        """Inicializuje prostor na počátku hry.
+        """
+        AItemContainer.initialize(self)    # Inicializuje h-objekty
+        # Inicializuje sousedy, atribut se vytváří až při první inicializaci
+        self.name_2_neighbor = {name.lower() : _NAME_2_PLACE[name.lower()]
+                                for name in self.initial_neighbor_names}
+
+
+
+#Výpis 16.11: Definice třídy _End v modulu actions v balíčku game_v1f
+############################################################################
+class _End(_AAction):
+    """Ukončuje hru a převede ji do pasivního stavu.
+    """
+    def __init__(self):
+        """Jen si u rodiče zapamatuje svůj název a popis."""
+        super().__init__("Konec", "Ukončení hry")
+
+    def execute(self, arguments: str) -> str:
+        is_active = False
+        return "Ukončili jste hru.\nDěkujeme, že jste si zahráli."
+
+
+
+############################################################################
+##### KONEC #####

@@ -1,0 +1,194 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m11__test_define.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+11  Definice testu hry
+"""
+
+
+
+#Výpis 11.1: Demonstrace použití přiřazovacího výrazu
+############################################################################
+>>> lst_a = list('Python');   print(f'{lst_a = }')
+lst_a = ['P', 'y', 't', 'h', 'o', 'n']
+>>> lst_a.sort();   print(f'{lst_a = }')
+lst_a = ['P', 'h', 'n', 'o', 't', 'y']
+>>> (lst_b := list('Python')).sort();   print(f'{lst_b = }')
+lst_b = ['P', 'h', 'n', 'o', 't', 'y']
+>>>
+
+
+
+#Výpis 11.2: Definice modulu game v balíčku game_v1b
+############################################################################
+"""
+Modul reprezentuje hru.
+"""
+print(f'===== Modul {__name__} ===== START')
+############################################################################
+
+# Příznak toho, zda hra právě běží (True), anebo jen čeká na další spuštění
+is_active = False   # Na počátku hra čeká, až ji někdo spustí
+
+
+def execute_command(command: str) -> str:
+    """Zpracuje zadaný příkaz a vrátí string se zprávou pro uživatele."""
+    return "Prozatímní text"
+
+
+############################################################################
+print(f'===== Modul {__name__} ===== STOP')
+
+
+
+#Výpis 11.3: Prozatímní definice modulu world v balíčku game_v1b
+############################################################################
+"""
+Modul world reprezentuje svět a obsahuje definice tříd
+prostorů, předmětů (h-objektů) a batohu.
+"""
+print(f'===== Modul {__name__} ===== START')
+
+############################################################################
+class Item():
+    """Instance reprezentují h-objekty v prostorech hry a v batohu."""
+
+    def __init__(self, name: str):
+        """Vytvoří h-objekt se zadaným názvem."""
+        self.name = name
+
+
+############################################################################
+class Place:
+    """Instance reprezentují prostory hry."""
+
+    def __init__(self, name: str, description: str):
+        """Vytvoří prostor se zadaným názvem a stručným popiskem."""
+        self.name = name
+        self.description = description
+        self.name_2_neighbor = {}
+        self.item_names = []
+
+
+############################################################################
+class Bag:
+    """Instance třídy reprezentuje batoh."""
+
+    CAPACITY = None     # Maximální kapacita batohu
+
+    def __init__(self):
+        """Vytvoří batoh."""
+        self.item_names = []
+
+
+############################################################################
+
+# Aktuální prostor = prostor, v němž se hráč právě nachází
+current_place = None
+
+# Jediná instance batohu
+BAG = Bag()
+
+
+############################################################################
+print(f'===== Modul {__name__} ===== STOP')
+
+
+
+#Výpis 11.4: Definice funkce test_scenario() v modulu scenario v balíčku game_v1b
+############################################################################
+from . import world, game
+
+def test_scenario():
+    """Prověří, zda hra pracuje podle zadaného scénáře;
+    Zadané příkazy a odpovědi průběžně tiskne.
+    """
+    print(f'Spuštěna metoda {__package__}.{__name__}.test_scenario')
+    from_scenario = None
+    from_game     = None
+
+    def compare_containers(cont1, cont2) -> bool:
+        """Porovná obsah dvou kontejnerů a jako vedlejší efekt uloží do
+        proměnných from_scenario a from_game seznamy s názvy v zadaných
+        kontejnerech převedenými na malá písmena a seřazenými dle abecedy.
+        """
+        nonlocal from_scenario, from_game
+        (from_scenario := [item.lower() for item in cont1]).sort()
+        (from_game     := [item.lower() for item in cont2]).sort()
+        return from_scenario != from_game
+
+    for step in _HAPPY_SCENARIO:
+        print(f'{step.index}.\n{_single_line}\n'
+              f'{step.command}\n{_single_line}')
+        try:
+            answer = game.execute_command(step.command)
+            print(f'{answer}\n{_double_line}\n')
+        except Exception as Ex:
+            print('Při vykonávání příkazu byla vyhozena výjimka:\n', Ex)
+            print('Očekávaný stav po kroku č.', step)
+            raise Exception(Ex)
+
+        if step.message != answer:
+            _error(step, step.message, answer, 'odpověď hry')
+        current_place = world.current_place
+        if  step.place != current_place.name:
+            _error(step, step.place, current_place, 'aktuální prostor')
+        if compare_containers(step.neighbors,
+                              current_place.name_2_neighbor.keys()):
+            _error(step, from_scenario, from_game, 'aktuální sousedé')
+        if compare_containers(step.items, current_place.item_names):
+            _error(step, from_scenario, from_game, 'objekty v prostoru')
+        if compare_containers(step.bag, world.BAG.item_names):
+            _error(step, from_scenario, from_game, 'objekty v batohu')
+
+    print('Hra úspěšně otestována podle zadaného scénáře')
+
+
+
+#Výpis 11.5: Definice metody _error() v modulu scenario v balíčku game_v1b
+############################################################################
+def _error(step: _Step, scenario: object, game: object, reason: str):
+    """Ohlásí zprávu o chybě a ukončí aplikaci."""
+    msg = f'V {step.index}. kroku neodpovídá: {reason}\n' \
+          f'   Očekáváno: {scenario}\n' \
+          f'   Obdrženo:  {game}'
+    print( msg )
+    input('Stisk klávesy Enter aplikaci ukončí')
+    exit(1)
+
+
+
+#Výpis 11.6: Import modulu scenarios v balíčku game_v1b
+############################################################################
+=============================== RESTART: Shell ==============================
+>>> import game.game_v1b.scenarios
+##### game - Společný rodičovský balíček balíčků jednotlivých verzí her
+##### game.game_v1b - Balíček s verzí hry na konci 11. kapitoly
+      po definici testu hry
+===== Modul game.game_v1b.scenarios ===== START
+===== Modul game.game_v1b.world ===== START
+===== Modul game.game_v1b.world ===== STOP
+===== Modul game.game_v1b.game ===== START
+===== Modul game.game_v1b.game ===== STOP
+===== Modul game.game_v1b.scenarios ===== STOP
+Spuštěna metoda game.game_v1b.game.game_v1b.scenarios.test_scenario
+0.
+------------------------------
+
+------------------------------
+Prozatímní text
+============================================================
+
+V 0. kroku neodpovídá: odpověď hry
+   Očekáváno: Vítejte!
+Toto je příběh o Červené Karkulce, babičce a vlkovi.
+Svými příkazy řídíte Karkulku, aby donesla věci babičce.
+Nebudete-li si vědět rady, zadejte znak ?.
+   Obdrženo:  Prozatímní text
+Stisk klávesy Enter aplikaci ukončí
+>>>
+
+
+
+############################################################################
+##### KONEC #####

@@ -1,0 +1,215 @@
+#Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
+#Q:/65_PGM/65_REC/m00__chapter_template.pyrec
+"""
+Příkazy a záznamy odpovědí zadávané ve výpisech kapitoly:
+19  Spustitelná aplikace.
+"""
+
+
+
+#Výpis 19.1: Ukázky definic funkcí používajících cyklus while
+############################################################################
+>>> \
+def countDown(n) -> None:
+    """Vytiskne zadaný počet čísel – a po nich slovo BUM."""
+    while n>0:
+        print(n, end='-')
+        n -= 1
+    print('BUM')
+
+>>> countDown(5)
+5-4-3-2-1-BUM
+>>> \
+def factW(n):
+    """Faktoriál počítaný pomocí cyklu while."""
+    f = 1      # Hodnota vracená v případě, když n <= 1
+    while n > 1:
+        f *= n
+        n -= 1
+    return f
+
+>>> factW(5)
+120
+>>>
+
+
+
+#Výpis 19.2: Nekonečný cyklus
+############################################################################
+>>> \
+def infinite() -> None:
+    """Spustí prázdný nekonečný cyklus, který bude nutné přerušit zvenku."""
+    while True: pass
+    print('Hotovo')
+
+>>> infinite ()
+Traceback (most recent call last):
+  File "<pyshell#11>", line 1, in <module>
+    infinite()
+  File "<pyshell#10>", line 4, in infinite
+    while True: pass
+KeyboardInterrupt
+>>>
+
+
+
+#Výpis 19.3: Chování logických operátorů
+############################################################################
+>>> a = 5 > 3         #Výsledek porovnání (logická hodnota) ukládám do proměnné
+>>> a
+True
+>>> not a
+False
+>>> '' and 'cokoliv'  #Levý operand je False => jeho hodnota je výsledkem
+''
+>>> 1 and ''          #Levý operand je True => výsledkem je hodnota pravého
+''
+>>> '' or 'cokoliv'   #Levý operand je False => výsledkem je hodnota pravého
+'cokoliv'
+>>> 1 or ''           #Levý operand je True => jeho hodnota je výsledkem
+1
+>>> #V následujícím příkladu jsou hodnoty prvních tří operandů False =>
+>>> not a or 0 or "" or "poslední" # => výsledkem je hodnota posledního
+'poslední'
+>>>
+
+
+
+#Výpis 19.4: Definice metody run() v modulu game v balíčku game_v1i
+############################################################################
+def run() -> None:
+    """Spustí hru ovládanou z příkazového řádku."""
+    command = ''
+    while True:     # Nekonečný cyklus hraní hry
+        message = execute_command(command)
+        print(message)
+        if not actions.is_active:
+            break    # Hra je ukončena => vyskakujeme z cyklu ---------->
+            # Předchozí příkaz by mohl být i return, což by bylo lepší,
+            # protože v danou chvíli hra beztak končí
+        command = input('Zadejte příkaz: ')
+
+
+
+#Výpis 19.5: Definice metody multirun() v modulu game v balíčku game_v1i
+############################################################################
+def multirun() -> None:
+    """Umožní opakované spuštění hry ovládané z příkazového řádku."""
+    while True:
+        run()
+        while True:
+            answer = input('Chcete si zahrát ještě jednou (A/N): ').strip()
+            if (len(answer) > 0)   and   (answer[0] in '01ANan'):
+                break       # Výskok z vnitřního cyklu    ---------->
+            print('Odpověď musí začínat některým ze znaků "01ANan"\n'
+                  'Zkuste odpovědět znovu.')
+        if answer[0] in '0Nn':
+            break       # Výskok z vnějšího cyklu    ---------->
+        print('\nDobře, zahrajeme si ještě jednou.\n')
+    print('\nJeště jednou děkuji za hru.\nNa shledanou.')
+
+
+
+#Výpis 19.6: Definice modulu m19a_script
+############################################################################
+"""
+Modul pro demonstraci rozpoznání režimu, v němž je spouštěn.
+"""
+print(f'===== Modul {__name__} ===== START')
+
+if __name__ == '__main__':
+    print(f'Skript je spouštěn ze systému')
+else:
+    print(f'Skript je spouštěn v interaktivním režimu')
+
+print(f'===== Modul {__name__} ===== STOP')
+
+
+
+#Výpis 19.7: Reakce na spuštění modulu m19a_script v interaktivním režimu
+############################################################################
+>>> import m19a_script
+===== Modul m19a_script ===== START
+Skript je spouštěn v interaktivním režimu
+===== Modul m19a_script ===== STOP
+>>>
+
+
+
+#Výpis 19.8: Reakce na spuštění modulu m19a_script v příkazovém okně Windows
+############################################################################
+Microsoft Windows [Version 10.0.18362.900]
+(c) 2019 Microsoft Corporation. Všechna práva vyhrazena.
+
+Q:\65_PGM\65_PYT>m19a_script.py
+===== Modul __main__ ===== START
+Skript je spouštěn ze systému
+===== Modul __main__ ===== STOP
+
+Q:\65_PGM\65_PYT>
+
+
+
+#Výpis 19.9: Vytvoření samostatné aplikace pomocí modu winapp a její spuštění
+############################################################################
+Microsoft Windows [Version 10.0.18362.900]
+(c) 2019 Microsoft Corporation. Všechna práva vyhrazena.
+
+Q:\65_PGM\65_APP>python -m zipapp Game -m game_v1i.game:run
+
+Q:\65_PGM\65_APP>Game.pyz
+Vítejte!
+Toto je příběh o Červené Karkulce, babičce a vlkovi.
+Svými příkazy řídíte Karkulku, aby donesla věci babičce.
+Nebudete-li si vědět rady, zadejte znak ?.
+------------------------------
+Zadejte příkaz: vezmi víno
+Karkulka dala do košíku objekt: Víno
+------------------------------
+Zadejte příkaz: konec
+Ukončili jste hru.
+Děkujeme, že jste si zahráli.
+------------------------------
+
+Q:\65_PGM\65_APP>
+
+
+
+#Výpis 19.10: Definice modulu __main__ v souboru Game.pyz
+############################################################################
+# -*- coding: utf-8 -*-
+import game_v1i.game
+game_v1i.game.run()
+
+
+
+#Výpis 19.11: Definice funkcí main() a help() v modulu game v balíčku game_v1i
+############################################################################
+def main() -> None:
+    """Spustí aplikaci podle zadaných argumentů příkazového řádku."""
+    args = sys.argv
+    if DBG>=0: print(f'main – argumenty příkazového řádku: {args}')
+    if '-h' in args:
+        help()
+        return
+    global print_state
+    print_state = ('-s' in args)
+    if '-m' in args:
+        multirun()
+    else:
+        run()
+
+
+def help() -> None:
+    """Zobrazí nápovědu k aplikaci."""
+    print('Aplikace představuje jednoduchou konverzační hru.\n'
+          'Při spuštění můžete zadat následující argumenty:\n'
+          '-h  Spustí tuto nápovědu\n'
+          '-m  Umožní zahrát si hru po skončení znovu\n'
+          '-s  Součástí odpovědi hry na zadání příkazu bude informace\n'
+          '    o aktuálním stavu světa hry')
+
+
+
+############################################################################
+##### KONEC #####
