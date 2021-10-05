@@ -88,7 +88,7 @@ dict_items = occurencies.items()
 sorted_items = sorted(dict_items)
 
 
-print("LEN",'\t',"|","OCCURENCES".center(15),'\t',"   |", "NR.")
+print("LEN",'\t',"|","OCCURENCES".center(15),'\t',"|", "NR.")
 print(separator)
 for nr,count in sorted_items:
     print(str(nr).center(4),'\t', '|', ('*' * count).center(16),'\t' "|", count)
