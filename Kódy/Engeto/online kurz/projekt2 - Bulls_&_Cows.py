@@ -1,16 +1,27 @@
 import random
 
-oddelovac = '-' * 60
-nl = '\n'
-hadane_cislo = str(random.randint(1000, 9999))
-pokusy = 0
+
+def hadane_cislo():
+    while True:
+        generovane_cislo = str(random.randint(1000, 9999))
+        if unikatni_cislo(generovane_cislo):
+            return generovane_cislo
+
+
+def unikatni_cislo(generovane_cislo):
+    list_cisel = [i for i in str(generovane_cislo)]
+    if len(generovane_cislo) == len(set(list_cisel)):
+        return True
+    else:
+        return False
 
 
 def zadavani_cisla():
     while True:
         print('-' * 60)
-        print('Enter a 4-digit number between 1000 and 9999:')
+        print('Enter a 4-digit number between 1000 and 9999. No number should be repeated:')
         cislo = input()
+
         if cislo == 'exit':
             break
         elif cislo.isdigit() is False:
@@ -19,6 +30,8 @@ def zadavani_cisla():
             print("The number must not start with zero. Once again. To exit, enter 'exit'")
         elif len(cislo) != 4:
             print("The number must be within the interval. Once again. To exit, type 'exit'")
+        elif unikatni_cislo(cislo) is False:
+            print("Each number in the string must be unique.Once again. To exit, type 'exit'")
         else:
             break
     return cislo if cislo != 'exit' else print('You quit the game!')
@@ -39,6 +52,11 @@ def crow_fnc(tip, hadane_cislo):
             crow += 1
     return crow
 
+
+oddelovac = '-' * 60
+nl = '\n'
+pokusy = 0
+hadane_cislo = hadane_cislo()
 
 print('Hello!')
 print(oddelovac)

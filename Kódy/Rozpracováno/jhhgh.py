@@ -1,4 +1,4 @@
-# vstupni hodnoty
+ # vstupni hodnoty
 MESTA = ["Praha", "Viden", "Olomouc", "Svitavy", "Zlin", "Ostrava"]
 CENY = (150, 200, 120, 120, 100, 180)
 ODDELOVAC = "=" * 35
